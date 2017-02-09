@@ -53,5 +53,5 @@ socket address will contain the "wildcard address" (INADDR_ANY for
 int rc = getaddrinfo("127.0.0.1", "12345", &hints, &svrAddr);
 rc = connect(sfd, svrAddr->ai_addr, svrAddr->ai_addrlen);
 ```
-```
-```
+
+注意，hints最好做一下memset，把`ai_socktype`、`ai_protocal`、`ai_family`、`ai_flags`都初始化好
