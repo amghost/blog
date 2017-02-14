@@ -89,7 +89,7 @@
 # 代码
 
 ```cpp
-ass Solution {
+class Solution {
     public:
         bool isValidSerialization(string preorder) {
             stack<string> node_stack;
