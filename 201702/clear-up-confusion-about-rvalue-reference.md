@@ -4,7 +4,7 @@
 
 ## 代码示例
 摘抄自书里的代码段小做修改
-```
+```cpp
 #include <iostream>
 #include <utility>
 using namespace std;
@@ -47,7 +47,7 @@ param是一个Meyers说的*universal reference*或者cppreference指的[Forwardi
 首先，一个函数的参数列表(**parameter** list)和传给它的参数列表(**argument** list)本质上并不是相同的含义。中间的含义在于**传递**
 
 对于简单的函数声明这可能是不易发现的，比如：
-```
+```cpp
 void foo(int v) {
     cout << "I got: " << v << endl;
 }
@@ -58,7 +58,7 @@ foo(i);
 parameter v是个int，argument i也是个int，没有任何问题，实际上这是一个**按值传递**的含义
 
 如果我把foo改成这样：
-```
+```cpp
 void foo(int& v) {
     ...
 }
@@ -76,7 +76,7 @@ void foo(int& v) {
 
 ### 如果返回的是左值引用呢？
 于此同时我也做了另外一个小实验：
-```
+```cpp
 int& someFunc(int &v);
 process(someFunc(param));   // Compile Error
 ```
