@@ -161,3 +161,8 @@ shared_ptr<MyClass> ptr1(obj);
 shared_ptr<MyClass> ptt2(obj);
 ```
 同样的道理对`this`指针也适用，因为不是共享计数，则这多个shared_ptr析构的时候会调用多次`delete this`
+
+### 弱回调
+直接暴露this指针的shared_ptr给外部会延长对象的生命期, 比如把shared_ptr通过bind绑到function里, 回调的时候对象始终存在, 是安全的, 但是也意外延长了对象的生命期, 使之不短于function对象
+
+可以利用 weak_ptr 实现如果对象还存在就调用之, 否则忽略之. 关键是在回调的时候先把 weak_ptr 提升为 shared_ptr, 如果提升成功说明对象还存在
