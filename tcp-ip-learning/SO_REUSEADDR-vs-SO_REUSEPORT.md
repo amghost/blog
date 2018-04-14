@@ -8,7 +8,7 @@
 
 其中：
 1. protocol是在调用`socket`是指定的
-2. src addr和src port是在调用`bind`（或者操作系统自动bind）时指定的
+2. src addr和src port是在调用`bind`（或者操作系统自动bind）时指定的
 
 # SO_REUSEADDR
 默认情况下，不同socket不能`bind`一对相同的src addr和src port。特别地，如果有socket在某个端口对于绑定了`0.0.0.0`，可以理解为它绑定了本机所有ip，所以其他任何socket都不能再绑定这个端口，不管使用哪个ip
@@ -33,18 +33,19 @@ SO_REUSEADDR       socketA        socketB         Result
 
 注：`SO_REUSEADDR`不要求所有socket都设置，只要当前要进行`bind`的socket设置即可，之前已绑定的socket可以没有设置
 
-#SO_REUSEPORT
+# SO_REUSEPORT
 `SO_REUSEPORT`是后面unix引进的实现，也就是说有些老版本的系统并不支持。Linux是在3.9版本才支持的。
-其作用是：只要所有socket都设置`SO_REUSEPORT`，则可以都绑定到相同的ip和port上。注意这和`SO_REUSEADDR`是不同的，后者是指ip和port不能完全相同，可以接受wildcard address；而`SO_REUSEPORT`更强大的是支持ip和port完全相同。也正是这么强大的功能，需要所有socket都显示设置
+其作用是：只要所有socket都设置`SO_REUSEPORT`，则可以都绑定到相同的ip和port上。注意这和`SO_REUSEADDR`是不同的，后者是指ip和port不能完全相同，可以接受wildcard address；而`SO_REUSEPORT`更强大的是支持ip和port完全相同。也正是这么强大的功能，需要所有socket都显式设置
 
 `SO_REUSEPORT`并不能替代`SO_REUSEADDR`。若ip:port当前有 TIME_WAIT 的socket，除非它也设置了`SO_REUSEPORT`，否则新的socket必须设置 `SO_REUSEADDR` 才能够绑定到这个ip:port上
 
-在linux3.9以上的版本，如果socket设置了`SO_REUSEPORT`对于TCP，系统会将连接建立请求分配到各个socket；对于UDP，系统会均匀分发数据包到各个socket。server可以利用多线程或多进程开启多个socket监听同一个Ip:port，获得轻便的负载均衡能力
+在linux3.9以上的版本，如果socket设置了`SO_REUSEPORT`对于TCP，系统会将连接建立请求分配到各个socket；对于UDP，系统会均匀分发数据包到各个socket。server可以利用多线程或多进程开启多个socket监听同一个Ip:port，获得轻便的负载均衡能力；另外，linux要求对一个socket设置`SO_REUSEPORT`的必须是属于同一个用户id，以防止 **Port hijacking**
 
 # udp connect
 UDP虽然是无连接的传输层协议，但是也可以调用`connect`函数，将这个udp socket的目的ip和目的port绑定到指定的ip:port，这样它就只能与这个ip:port互相发送和接收数据包。
 
 用`nc`命令演示：
+
 启动一个udp server并查看udp server，可以看到已经有一个udp socket绑定了34567端口，目前还没连接其他客户端
 ```
 Shell Input:
@@ -79,5 +80,5 @@ Shell Output:
 ```
 
 PS：如果server socket进行了`connect`
-1. server只收发来自指定ip:port的数据包，其他地址的数据包都会被丢弃，这是server-client塌缩成peer-to-peer
+1. server只收发来自指定ip:port的数据包，其他地址的数据包都会被丢弃，此时server-client塌缩成peer-to-peer
 2. 该socket必须只能调用`recv`和`send`，而非`recvfrom`和`sendto`，可以理解为类似TCP建立了连接
