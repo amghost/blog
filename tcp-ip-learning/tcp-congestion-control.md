@@ -62,12 +62,12 @@ SND.WND: 发送窗口大小，2阶段和3阶段之和
 RCV.NXT: 下一个接收sequence
 RCV.WND: 接收窗口大小
 
-## 慢启动（Slow start）
+## 慢启动（Slow start）
 采用慢启动的原因：TCP启动时并不知道网络的状态，所以需要先探测一下网络的状态，避免一下子发出太多的数据包导致拥塞更加严重（如果有的话）
 
 ssthresh 一般初始设置得比较大，cwnd < ssthresh 时启用慢启动算法。
 慢启动算法每次收到一个ACK时就会增加cwnd，所以cwnd增长是指数级的，比如 1个包发出去收到ack，1->2，然后2个包发出去收到2个ack，2->4.
-每次收到ACK，TCP对cwnd最多增加SMSS，**一般的TCP实现都是直接增加SMSS**，但是RFC 5681建议 `cwnd += min(N, SMSS)`，其中 N 为本次ACK包确认收到的数据量。由于ACK存在 ACK Division（即同一个segment的确认分成多个ack）否则若采用直接增加SMSS，会使cwnd被不恰当地放大（inappropriately inflate），采用这种方法可以更精准地控制以及增强系统鲁棒性。
+每次收到ACK，TCP对cwnd最多增加SMSS，**一般的TCP实现都是直接增加SMSS**，但是RFC 5681建议 `cwnd += min(N, SMSS)`，其中 N 为本次ACK包确认收到的数据量。由于ACK存在 ACK Division（即同一个segment的确认分成多个ack）否则若采用直接增加SMSS，会使cwnd被不恰当地放大（inappropriately inflate），采用这种方法可以更精准地控制以及增强系统鲁棒性。
 
 ## 拥塞避免（Congestion avoidence）
 cwnd > ssthresh 时，进入拥塞避免阶段。该阶段中每个RTT，cwnd只增长一个segment(不超过SMSS)，直到发生网络拥塞。
@@ -78,7 +78,7 @@ cwnd > ssthresh 时，进入拥塞避免阶段。该阶段中每个RTT，cwnd只
 此外，cwnd被重置为 LW（loss window），其值为1（注意不是上文说的 IW），重新开始慢启动流程
 
 ## 快重传（Fast retransmit）和 快恢复（Fast recovery）
-接收者接收到乱序的segment时应该立即返回一个ack（duplicate ack），ack序号为期望按序接收到的seq
+接收者接收到乱序的segment时应该立即返回一个ack（duplicate ack），ack序号为期望按序接收到的seq
 从发送者的角度，造成该现象有多种可能：
 1. 丢包
 2. 网络中包乱序
