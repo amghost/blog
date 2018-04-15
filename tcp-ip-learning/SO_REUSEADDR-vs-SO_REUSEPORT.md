@@ -39,12 +39,23 @@ SO_REUSEADDR       socketA        socketB         Result
 
 `SO_REUSEPORT`并不能替代`SO_REUSEADDR`。若ip:port当前有 TIME_WAIT 的socket，除非它也设置了`SO_REUSEPORT`，否则新的socket必须设置 `SO_REUSEADDR` 才能够绑定到这个ip:port上
 
+# Linux和BSD UNIX的不同之处
+1. SO_REUSEADDR
+    1.1 对于client socket，Linux中表现与BSD中的SO_REUSEPORT一样，UDP socket类似于client socket
+    1.2 对于server listening socket，Linux中这个选项直接被忽略
+2. SO_REUSEPORT
+    2.1. BSD中，只有最后一个bind的socket可以接收数据；而 Linux > 3.9 中，是均匀分配的（且同一个client只会到一个socket，是4.5/4.6引进的）
+
 在linux3.9以上的版本，如果socket设置了`SO_REUSEPORT`对于TCP，系统会将连接建立请求分配到各个socket；对于UDP，系统会均匀分发数据包到各个socket。server可以利用多线程或多进程开启多个socket监听同一个Ip:port，获得轻便的负载均衡能力；另外，linux要求对一个socket设置`SO_REUSEPORT`的必须是属于同一个用户id，以防止 **Port hijacking**
+
+对于1.1和2.1可以实践一下：在Linux中用SO_REUSEADDR，在BSD中用SO_REUSEPORT
+1. 开启一个udp server，开启一个udp client，发送消息，server收到消息
+2. 再开启一个udp server，用udp client再发消息，只有新的server可以收到消息
 
 # udp connect
 UDP虽然是无连接的传输层协议，但是也可以调用`connect`函数，将这个udp socket的目的ip和目的port绑定到指定的ip:port，这样它就只能与这个ip:port互相发送和接收数据包。
 
-用`nc`命令演示：
+用`nc`命令演示：以下为 macOS 环境
 
 启动一个udp server并查看udp server，可以看到已经有一个udp socket绑定了34567端口，目前还没连接其他客户端
 ```
