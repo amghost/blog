@@ -14,7 +14,7 @@
 默认情况下，不同socket不能`bind`一对相同的src addr和src port。特别地，如果有socket在某个端口对于绑定了`0.0.0.0`，可以理解为它绑定了本机所有ip，所以其他任何socket都不能再绑定这个端口，不管使用哪个ip
 
 `SO_REUSEADDR`的作用：
-1. 同个端口下，多个socket（正常工作中的）只有在ip完全不同的情况下才会`bind`冲突。
+1. 同个端口下，多个socket（正常工作中的）只有在ip完全相同的情况下才会`bind`冲突。
 
 ```
 SO_REUSEADDR       socketA        socketB         Result
